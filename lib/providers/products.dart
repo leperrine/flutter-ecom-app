@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import './product.dart';
 
 class Products with ChangeNotifier {
@@ -36,12 +38,8 @@ class Products with ChangeNotifier {
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
   ];
-  //var _showFavoritesOnly = false;
 
   List<Product> get items {
-    // if (_showFavoritesOnly) {
-    //   return _items.where((prodItem) => prodItem.isFavorite).toList();
-    // }
     return [..._items];
   }
 
@@ -53,18 +51,46 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  // void showFavoritesOnly() {
-  //   _showFavoritesOnly = true;
-  //   notifyListeners();
-  // }
+  Future<void> addProduct(Product product) async {
+    const url = 'https://flutter-ecom-app-lyman.firebaseio.com/products.json';
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode({
+          'title': product.title,
+          'description': product.description,
+          'imageUrl': product.imageUrl,
+          'price': product.price,
+          'isFavorite': product.isFavorite,
+        }),
+      );
+      final newProduct = Product(
+        title: product.title,
+        price: product.price,
+        description: product.description,
+        imageUrl: product.imageUrl,
+        id: json.decode(response.body)['name'],
+      );
+      _items.add(newProduct);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
 
-  // void showAll() {
-  //   _showFavoritesOnly = false;
-  //   notifyListeners();
-  // }
+  void updateProduct(String id, Product newProduct) {
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      print('....');
+    }
+  }
 
-  void addProduct() {
-    // _items.add(value);
+  void deleteProduct(String id) {
+    _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
 }
