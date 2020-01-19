@@ -68,7 +68,7 @@ class Auth with ChangeNotifier {
         {
           'token': _token,
           'userId': _userId,
-          'expiryDat': _expiryDate.toIso8601String(),
+          'expiryDate': _expiryDate.toIso8601String(),
         },
       );
       prefs.setString('userData', userData);
