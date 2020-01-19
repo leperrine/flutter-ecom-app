@@ -49,6 +49,7 @@ class Auth with ChangeNotifier {
         ),
       );
       final responseData = json.decode(response.body);
+      print(responseData);
 
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
@@ -113,7 +114,7 @@ class Auth with ChangeNotifier {
     }
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('userData');
+    prefs.clear();
   }
 
   void _autoLogout() {
